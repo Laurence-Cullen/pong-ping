@@ -24,19 +24,64 @@
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Add game result</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                ...
+            <div class="modal-body container">
+                <div class="row">
+                    <div class="col">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text" for="inputGroupSelect01">Player 1</label>
+                            </div>
+                            <select class="custom-select" id="inputGroupSelect01">
+                                <option selected>Pick player...</option>
+                                <option value="1">One</option>
+                                <option value="2">Two</option>
+                                <option value="3">Three</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text" for="inputGroupSelect02">Player 2</label>
+                            </div>
+                            <select class="custom-select" id="inputGroupSelect02">
+                                <option selected>Pick player...</option>
+                                <option value="1">One</option>
+                                <option value="2">Two</option>
+                                <option value="3">Three</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Player 1 Score </span>
+                            </div>
+                            <input type="number" min="0" class="form-control" placeholder="Score" aria-label="Username" aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon2">Player 2 Score</span>
+                            </div>
+                            <input type="number" min="0" class="form-control" placeholder="Score" aria-label="Username" aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Exit</button>
                 <button type="button" class="btn btn-primary">Save game</button>
             </div>
         </div>
@@ -87,30 +132,30 @@
 
     // Implementing ELO score
     // https://en.wikipedia.org/wiki/Elo_rating_system
-    function compute_new_ELOs(player1_elo, player2_elo, winner) {
-        const expected_1 = compute_expected_score(player1_elo, player2_elo);
-        const expected_2 = compute_expected_score(player2_elo, player1_elo);
+    function computeNewELOs(player1_elo, player1_score, player2_elo, player2_score) {
+        const expected_1 = computeExpectedScore(player1_elo, player2_elo);
+        const expected_2 = computeExpectedScore(player2_elo, player1_elo);
 
-        let actual_1;
-        let actual_2;
+        // normalise scores
+        const maxScore = Math.max(player1_score, player2_score);
+        const actual_1 = player1_score / maxScore;
+        const actual_2 = player2_score / maxScore;
 
-        if (winner === 1) {
-            actual_1 = 1;
-            actual_2 = 0;
-        } else if (winner === 2) {
-            actual_1 = 0;
-            actual_2 = 1;
-        } else {
-            console.log('winner should be either 1 or 2, this time it was:', winner);
-            return null
-        }
         const player1_elo_updated = player1_elo + K * (actual_1 - expected_1);
         const player2_elo_updated = player2_elo + K * (actual_2 - expected_2);
 
         return [player1_elo_updated, player2_elo_updated]
     }
 
-    function compute_expected_score(player_elo, other_elo) {
+    function updateELO(playerName, newELO) {
+        // Add a new document in collection "cities"
+        db.collection("players").doc(playerName).set({
+            name: playerName,
+            elo: newELO
+        })
+    }
+
+    function computeExpectedScore(player_elo, other_elo) {
         return 1 / (1 + Math.pow(10, (other_elo - player_elo) / 400));
     }
 </script>
