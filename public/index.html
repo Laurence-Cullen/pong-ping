@@ -12,6 +12,8 @@
 </head>
 <body>
 
+<div id="pong_ping">
+
 <nav class="navbar navbar-light bg-light justify-content-between">
     <a class="navbar-brand">Operation Pong Ping</a>
     <button class="btn btn-outline-success my-2 my-sm-0">Log in</button>
@@ -39,11 +41,9 @@
                             <div class="input-group-prepend">
                                 <label class="input-group-text" for="inputGroupSelect01">Player 1</label>
                             </div>
-                            <select class="custom-select" id="inputGroupSelect01">
+                            <select v-model="newGame.player1Name" class="custom-select" id="inputGroupSelect01">
                                 <option selected>Pick player...</option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
+                                <option v-for="player in players" :value="player.name">{{ player.name }}</option>
                             </select>
                         </div>
                     </div>
@@ -52,11 +52,10 @@
                             <div class="input-group-prepend">
                                 <label class="input-group-text" for="inputGroupSelect02">Player 2</label>
                             </div>
-                            <select class="custom-select" id="inputGroupSelect02">
+                            <select v-model="newGame.player2Name" class="custom-select" id="inputGroupSelect02">
                                 <option selected>Pick player...</option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
+                                <option v-for="player in players" :value="player.name">{{ player.name }}</option>
+
                             </select>
                         </div>
                     </div>
@@ -67,7 +66,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text" id="basic-addon1">Player 1 Score </span>
                             </div>
-                            <input type="number" min="0" class="form-control" placeholder="Score" aria-label="Username" aria-describedby="basic-addon1">
+                            <input v-model="newGame.player1Score" type="number" min="0" class="form-control" placeholder="Score" aria-label="Username" aria-describedby="basic-addon1">
                         </div>
                     </div>
                     <div class="col">
@@ -75,23 +74,24 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text" id="basic-addon2">Player 2 Score</span>
                             </div>
-                            <input type="number" min="0" class="form-control" placeholder="Score" aria-label="Username" aria-describedby="basic-addon1">
+                            <input v-model="newGame.player2Score" type="number" min="0" class="form-control" placeholder="Score" aria-label="Username" aria-describedby="basic-addon1">
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Exit</button>
-                <button type="button" class="btn btn-primary">Save game</button>
+                <button id="save" type="button" class="btn btn-primary" @click:click="addGame()">Save game</button>
             </div>
         </div>
     </div>
 </div>
-
+</div>
 
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/5.5.5/firebase.js"></script>
 <script src="https://www.gstatic.com/firebasejs/5.5.5/firebase-app.js"></script>
@@ -102,7 +102,7 @@
 
 <script>
     // Initialize Firebase
-    var config = {
+    const config = {
         apiKey: "AIzaSyDhK3e6CvMP6M9g4MytCIxhDhgePG02v4c",
         authDomain: "pong-ping1.firebaseapp.com",
         databaseURL: "https://pong-ping1.firebaseio.com",
@@ -114,50 +114,97 @@
     firebase.initializeApp(config);
 
     // Initialize Cloud Firestore through Firebase
-    var db = firebase.firestore();
+    let db = firebase.firestore();
 
     // Disable deprecated features
     db.settings({
         timestampsInSnapshots: true
     });
 
-    db.collection("games").get().then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-            $('#body').text(`${doc.id} => ${doc.data().player1}`);
-        });
+    let app = new Vue({
+        el: '#pong_ping',
+        data: {
+            newGame: {
+                player1Name: '',
+                player1Score: 0,
+                player1Elo: 0,
+                player2Name: '',
+                player2Score: 0,
+                player2Elo: 0
+            },
+            players: {},
+            K: 32,
+        },
+        methods: {
+            addGame: function () {
+                console.log('adding new game');
+                console.log(this.newGame);
+
+                this.newGame.player1Elo = this.players[this.newGame.player1Name];
+                this.newGame.player2Elo = this.players[this.newGame.player2Name];
+
+                const newGame = this.newGame;
+                const newElos = this.computeNewELOs(
+                    newGame.player1Elo,
+                    newGame.player1Score,
+                    newGame.player2Elo,
+                    newGame.player2Score
+                );
+
+                this.updateELO(newGame.player1Name, newElos.player1Elo);
+                this.updateELO(newGame.player2Name, newElos.player2Elo);
+            },
+            getPlayers: function() {
+                let players = {};
+
+                db.collection("players").get().then(function(querySnapshot) {
+                    querySnapshot.forEach(function(doc) {
+                        // doc.data() is never undefined for query doc snapshots
+                        // console.log(doc.data());
+                        players[doc.data().name] = {name: doc.data().name, elo: doc.data().elo};
+                    });
+                });
+                this.players = players;
+            },
+            // Implementing ELO score
+            // https://en.wikipedia.org/wiki/Elo_rating_system
+            computeNewELOs: function (player1Elo, player1Score, player2Elo, player2Score) {
+                // in chess either 32 for noobs or 16 for masters
+
+                const expected_1 = this.computeExpectedScore(player1Elo, player2Elo);
+                const expected_2 = this.computeExpectedScore(player2Elo, player1Elo);
+
+                // normalise inputted scores
+                const maxScore = Math.max(player1Score, player2Score);
+                const actual_1 = player1Score / maxScore;
+                const actual_2 = player2Score / maxScore;
+
+                const player1EloUpdated = player1Elo + this.K * (actual_1 - expected_1);
+                const player2EloUpdated = player2Elo + this.K * (actual_2 - expected_2);
+
+                return {player1Elo: player1EloUpdated, player2Elo: player2EloUpdated}
+            },
+            updateELO: function (playerName, newELO) {
+                // Add a new document in collection "cities"
+                db.collection("players").doc(playerName).set({
+                    name: playerName,
+                    elo: newELO
+                })
+                    .then(function() {
+                        console.log("Player", playerName, "elo rating updated");
+                    })
+                    .catch(function(error) {
+                        console.error("Error writing document: ", error);
+                    });
+            },
+            computeExpectedScore: function(player_elo, other_elo) {
+                return 1 / (1 + Math.pow(10, (other_elo - player_elo) / 400));
+            }
+    }
     });
 
-    // in chess either 32 for noobs or 16 for masters
-    const K = 32;
+    app.getPlayers();
 
-    // Implementing ELO score
-    // https://en.wikipedia.org/wiki/Elo_rating_system
-    function computeNewELOs(player1_elo, player1_score, player2_elo, player2_score) {
-        const expected_1 = computeExpectedScore(player1_elo, player2_elo);
-        const expected_2 = computeExpectedScore(player2_elo, player1_elo);
-
-        // normalise scores
-        const maxScore = Math.max(player1_score, player2_score);
-        const actual_1 = player1_score / maxScore;
-        const actual_2 = player2_score / maxScore;
-
-        const player1_elo_updated = player1_elo + K * (actual_1 - expected_1);
-        const player2_elo_updated = player2_elo + K * (actual_2 - expected_2);
-
-        return [player1_elo_updated, player2_elo_updated]
-    }
-
-    function updateELO(playerName, newELO) {
-        // Add a new document in collection "cities"
-        db.collection("players").doc(playerName).set({
-            name: playerName,
-            elo: newELO
-        })
-    }
-
-    function computeExpectedScore(player_elo, other_elo) {
-        return 1 / (1 + Math.pow(10, (other_elo - player_elo) / 400));
-    }
 </script>
 
 </body>
