@@ -6,91 +6,119 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <title>Hello, world!</title>
+    <link rel="stylesheet" href="style.css">
+
+    <title>Pong Ping</title>
 </head>
 <body>
 
-<div id="pong_ping">
+<div id="pong_ping" class="container">
 
-<nav class="navbar navbar-light bg-light justify-content-between">
-    <a class="navbar-brand">Operation Pong Ping</a>
-    <button class="btn btn-outline-success my-2 my-sm-0">Log in</button>
-</nav>
+    <div class="row">
+        <nav class="navbar navbar-light bg-light justify-content-between">
+            <a class="navbar-brand">Operation Pong Ping</a>
+            <button class="btn btn-outline-success my-2 my-sm-0">Log in</button>
+        </nav>
+    </div>
 
-<!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-    Add game result!
-</button>
+    <div class="row">
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+            Add game result!
+        </button>
 
-<!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Add game result</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body container">
-                <div class="row">
-                    <div class="col">
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <label class="input-group-text" for="inputGroupSelect01">Player 1</label>
+        <button v-on:click="populateLeaderBoard()" type="button" class="btn btn-primary">
+            Refresh Leader Board
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Add game result</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body container">
+                        <div class="row">
+                            <div class="col">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="inputGroupSelect01">Player 1</label>
+                                    </div>
+                                    <select v-model="newGame.player1Name" class="custom-select" id="inputGroupSelect01">
+                                        <option selected>Pick player...</option>
+                                        <option v-for="player in players" :value="player.name">{{ player.name }}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
-                            <select v-model="newGame.player1Name" class="custom-select" id="inputGroupSelect01">
-                                <option selected>Pick player...</option>
-                                <option v-for="player in players" :value="player.name">{{ player.name }}</option>
-                            </select>
+                            <div class="col">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="inputGroupSelect02">Player 2</label>
+                                    </div>
+                                    <select v-model="newGame.player2Name" class="custom-select" id="inputGroupSelect02">
+                                        <option selected>Pick player...</option>
+                                        <option v-for="player in players" :value="player.name">{{ player.name }}
+                                        </option>
+
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="basic-addon1">Player 1 Score </span>
+                                    </div>
+                                    <input v-model="newGame.player1Score" type="number" min="0" class="form-control"
+                                           placeholder="Score" aria-label="Username" aria-describedby="basic-addon1">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="basic-addon2">Player 2 Score</span>
+                                    </div>
+                                    <input v-model="newGame.player2Score" type="number" min="0" class="form-control"
+                                           placeholder="Score" aria-label="Username" aria-describedby="basic-addon1">
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col">
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <label class="input-group-text" for="inputGroupSelect02">Player 2</label>
-                            </div>
-                            <select v-model="newGame.player2Name" class="custom-select" id="inputGroupSelect02">
-                                <option selected>Pick player...</option>
-                                <option v-for="player in players" :value="player.name">{{ player.name }}</option>
-
-                            </select>
-                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Exit</button>
+                        <button id="save" type="button" class="btn btn-primary" v-on:click="addGame()">Save game
+                        </button>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col">
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" id="basic-addon1">Player 1 Score </span>
-                            </div>
-                            <input v-model="newGame.player1Score" type="number" min="0" class="form-control" placeholder="Score" aria-label="Username" aria-describedby="basic-addon1">
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" id="basic-addon2">Player 2 Score</span>
-                            </div>
-                            <input v-model="newGame.player2Score" type="number" min="0" class="form-control" placeholder="Score" aria-label="Username" aria-describedby="basic-addon1">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Exit</button>
-                <button id="save" type="button" class="btn btn-primary" @click:click="addGame()">Save game</button>
             </div>
         </div>
     </div>
-</div>
+    <div class="row">
+        <div id="leader_board"></div>
+    </div>
+
 </div>
 
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/5.5.5/firebase.js"></script>
@@ -136,48 +164,94 @@
             K: 32,
         },
         methods: {
+            populateLeaderBoard: function () {
+                $('#leader_board').empty();
+
+                let sortable_players = [];
+                for (let player in this.players) {
+                    sortable_players.push([player, this.players[player].elo])
+                }
+
+                // sorts players in descending elo values
+                sortable_players.sort(function(a, b) {
+                    return b[1] - a[1];
+                });
+
+                for (let index in sortable_players) {
+                    const player = sortable_players[index];
+
+                    const cardString = "<div class=\"card\">\n" +
+                        "  <div class=\"card-body\">\n" +
+                        player[0] + " " + player[1] +
+                        "  </div>\n" +
+                        "</div>";
+
+                    $('#leader_board').append(cardString);
+                }
+            },
+
             addGame: function () {
                 console.log('adding new game');
+
+                app.newGame.player1Elo = this.players[this.newGame.player1Name].elo;
+                app.newGame.player2Elo = this.players[this.newGame.player2Name].elo;
+
                 console.log(this.newGame);
 
-                this.newGame.player1Elo = this.players[this.newGame.player1Name];
-                this.newGame.player2Elo = this.players[this.newGame.player2Name];
-
-                const newGame = this.newGame;
                 const newElos = this.computeNewELOs(
-                    newGame.player1Elo,
-                    newGame.player1Score,
-                    newGame.player2Elo,
-                    newGame.player2Score
+                    this.newGame.player1Elo,
+                    this.newGame.player1Score,
+                    this.newGame.player2Elo,
+                    this.newGame.player2Score
                 );
 
-                this.updateELO(newGame.player1Name, newElos.player1Elo);
-                this.updateELO(newGame.player2Name, newElos.player2Elo);
+                console.log(newElos);
+
+                this.updateELO(this.newGame.player1Name, newElos.player1Elo);
+                this.updateELO(this.newGame.player2Name, newElos.player2Elo);
             },
-            getPlayers: function() {
+            getPlayers: function () {
+
+                console.log('loading player data from the database');
+
                 let players = {};
 
-                db.collection("players").get().then(function(querySnapshot) {
-                    querySnapshot.forEach(function(doc) {
+                db.collection("players").get().then(function (querySnapshot) {
+                    querySnapshot.forEach(function (doc) {
                         // doc.data() is never undefined for query doc snapshots
                         // console.log(doc.data());
                         players[doc.data().name] = {name: doc.data().name, elo: doc.data().elo};
                     });
                 });
                 this.players = players;
+                console.log('player data loaded');
             },
             // Implementing ELO score
             // https://en.wikipedia.org/wiki/Elo_rating_system
             computeNewELOs: function (player1Elo, player1Score, player2Elo, player2Score) {
                 // in chess either 32 for noobs or 16 for masters
 
+                console.log('player1 elo:', player1Elo);
+                console.log('player2 elo:', player2Elo);
+
                 const expected_1 = this.computeExpectedScore(player1Elo, player2Elo);
                 const expected_2 = this.computeExpectedScore(player2Elo, player1Elo);
 
+                console.log('expected scores:');
+                console.log(expected_1);
+                console.log(expected_2);
+
                 // normalise inputted scores
                 const maxScore = Math.max(player1Score, player2Score);
+
+                console.log('max score:', maxScore);
+
                 const actual_1 = player1Score / maxScore;
                 const actual_2 = player2Score / maxScore;
+
+                console.log('actual scores:');
+                console.log(actual_1);
+                console.log(actual_2);
 
                 const player1EloUpdated = player1Elo + this.K * (actual_1 - expected_1);
                 const player2EloUpdated = player2Elo + this.K * (actual_2 - expected_2);
@@ -190,21 +264,21 @@
                     name: playerName,
                     elo: newELO
                 })
-                    .then(function() {
+                    .then(function () {
                         console.log("Player", playerName, "elo rating updated");
                     })
-                    .catch(function(error) {
+                    .catch(function (error) {
                         console.error("Error writing document: ", error);
                     });
             },
-            computeExpectedScore: function(player_elo, other_elo) {
+            computeExpectedScore: function (player_elo, other_elo) {
                 return 1 / (1 + Math.pow(10, (other_elo - player_elo) / 400));
             }
-    }
+        }
     });
 
     app.getPlayers();
-
+    app.populateLeaderBoard();
 </script>
 
 </body>
