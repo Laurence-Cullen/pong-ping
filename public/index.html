@@ -30,7 +30,7 @@
             Add game result!
         </button>
 
-        <button v-on:click="populateLeaderBoard()" type="button" class="btn btn-primary">
+        <button v-on:click="populateLeaderBoard" type="button" class="btn btn-primary">
             Refresh Leader Board
         </button>
 
@@ -96,7 +96,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Exit</button>
-                        <button id="save" type="button" class="btn btn-primary" v-on:click="addGame()">Save game
+                        <button id="save" type="button" class="btn btn-primary" v-on:click="addGame">Save game
                         </button>
                     </div>
                 </div>
@@ -104,9 +104,8 @@
         </div>
     </div>
     <div class="row">
-        <div id="leader_board"></div>
+        <div v-html="leaderBoardString"></div>
     </div>
-
 </div>
 
 
@@ -162,11 +161,10 @@
             },
             players: {},
             K: 32,
+            leaderBoardString: ''
         },
         methods: {
             populateLeaderBoard: function () {
-                $('#leader_board').empty();
-
                 let sortable_players = [];
                 for (let player in this.players) {
                     sortable_players.push([player, this.players[player].elo])
@@ -177,16 +175,18 @@
                     return b[1] - a[1];
                 });
 
+                app.leaderBoardString = '';
                 for (let index in sortable_players) {
                     const player = sortable_players[index];
 
+                    const position = parseInt(index) + 1;
+
                     const cardString = "<div class=\"card\">\n" +
                         "  <div class=\"card-body\">\n" +
-                        player[0] + " " + player[1] +
+                        position + ". " + player[0] + " " + Math.round(player[1]) +
                         "  </div>\n" +
                         "</div>";
-
-                    $('#leader_board').append(cardString);
+                        app.leaderBoardString += cardString;
                 }
             },
 
