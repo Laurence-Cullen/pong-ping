@@ -185,6 +185,12 @@
         methods: {
             addGame: function (newGame) {
 
+                if (newGame.player1Score < 11 && newGame.player2Score < 11) {
+                    console.log('game must be scored to at least 11 points to count');
+                    alert('game must be to a minimum of 11 points');
+                    return newGame;
+                }
+
                 this.saveGame(newGame);
 
                 const newElos = this.computeNewELOs(
@@ -210,6 +216,12 @@
                 if (game.player1 == null || game.player2 == null) {
                     console.log(game.player1);
                     console.log(game.player2);
+
+                    return game
+                }
+
+                if (game.player1Score < 11 && game.player2Score < 11) {
+                    console.log('game must be scored to at least 11 points to count');
 
                     return game
                 }
