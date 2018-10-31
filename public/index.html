@@ -30,10 +30,6 @@
             Add game result!
         </button>
 
-        <button v-on:click="populateLeaderBoard" type="button" class="btn btn-primary">
-            Refresh Leader Board
-        </button>
-
         <!-- Modal -->
         <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
              aria-hidden="true">
@@ -52,9 +48,9 @@
                                     <div class="input-group-prepend">
                                         <label class="input-group-text" for="inputGroupSelect01">Player 1</label>
                                     </div>
-                                    <select v-model="newGame.player1Name" class="custom-select" id="inputGroupSelect01">
+                                    <select v-model="newGame.player1" class="custom-select" id="inputGroupSelect01">
                                         <option selected>Pick player...</option>
-                                        <option v-for="player in players" :value="player.name">{{ player.name }}
+                                        <option v-for="player in players" :value="player">{{ player.name }}
                                         </option>
                                     </select>
                                 </div>
@@ -64,9 +60,9 @@
                                     <div class="input-group-prepend">
                                         <label class="input-group-text" for="inputGroupSelect02">Player 2</label>
                                     </div>
-                                    <select v-model="newGame.player2Name" class="custom-select" id="inputGroupSelect02">
+                                    <select v-model="newGame.player2" class="custom-select" id="inputGroupSelect02">
                                         <option selected>Pick player...</option>
-                                        <option v-for="player in players" :value="player.name">{{ player.name }}
+                                        <option v-for="player in players" :value="player">{{ player.name }}
                                         </option>
 
                                     </select>
@@ -96,15 +92,26 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Exit</button>
-                        <button id="save" type="button" class="btn btn-primary" v-on:click="addGame">Save game
+                        <button id="save" type="button" class="btn btn-primary" data-dismiss="modal"
+                                v-on:click="addGame(newGame)">Save game
                         </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
     <div class="row">
-        <div v-html="leaderBoardString"></div>
+        <div class="col-md-6">
+            <transition-group name="flip-list" tag="ul">
+
+                <div v-for="(player,index) in sortedPlayers" v-bind:key="player" class="card col-xs-12">
+                    <div class="card-body">
+                        {{ index + 1 }}. {{ player.name }} {{ Math.round(player.elo) }}
+                    </div>
+                </div>
+            </transition-group>
+        </div>
     </div>
 </div>
 
@@ -152,78 +159,64 @@
         el: '#pong_ping',
         data: {
             newGame: {
-                player1Name: '',
+                player1: null,
                 player1Score: 0,
-                player1Elo: 0,
-                player2Name: '',
+                player2: null,
                 player2Score: 0,
-                player2Elo: 0
             },
+            predicate: 'elo',
             players: {},
             K: 32,
             leaderBoardString: ''
         },
-        methods: {
-            populateLeaderBoard: function () {
-                let sortable_players = [];
-                for (let player in this.players) {
-                    sortable_players.push([player, this.players[player].elo])
-                }
-
-                // sorts players in descending elo values
-                sortable_players.sort(function(a, b) {
-                    return b[1] - a[1];
+        computed: {
+            sortedPlayers: function () {
+                let playersArray = Object.values(this.players);
+                let that = this;
+                playersArray.sort(function (a, b) {
+                    return b[that.predicate] - a[that.predicate];
                 });
-
-                app.leaderBoardString = '';
-                for (let index in sortable_players) {
-                    const player = sortable_players[index];
-
-                    const position = parseInt(index) + 1;
-
-                    const cardString = "<div class=\"card\">\n" +
-                        "  <div class=\"card-body\">\n" +
-                        position + ". " + player[0] + " " + Math.round(player[1]) +
-                        "  </div>\n" +
-                        "</div>";
-                        app.leaderBoardString += cardString;
-                }
-            },
-
-            addGame: function () {
-                console.log('adding new game');
-
-                app.newGame.player1Elo = this.players[this.newGame.player1Name].elo;
-                app.newGame.player2Elo = this.players[this.newGame.player2Name].elo;
-
-                console.log(this.newGame);
+                return playersArray;
+            }
+        },
+        methods: {
+            addGame: function (newGame) {
 
                 const newElos = this.computeNewELOs(
-                    this.newGame.player1Elo,
-                    this.newGame.player1Score,
-                    this.newGame.player2Elo,
-                    this.newGame.player2Score
+                    newGame.player1.elo,
+                    newGame.player1Score,
+                    newGame.player2.elo,
+                    newGame.player2Score
                 );
 
-                console.log(newElos);
+                newGame.player1.elo = newElos.player1Elo;
+                newGame.player2.elo = newElos.player2Elo;
 
-                this.updateELO(this.newGame.player1Name, newElos.player1Elo);
-                this.updateELO(this.newGame.player2Name, newElos.player2Elo);
+                this.updateELO(newGame.player1.name, newElos.player1Elo);
+                this.updateELO(newGame.player2.name, newElos.player2Elo);
+
+                newGame.player1 = null;
+                newGame.player2 = null;
+                newGame.player1Score = 0;
+                newGame.player2Score = 0;
+
             },
             getPlayers: function () {
-
                 console.log('loading player data from the database');
 
-                let players = {};
+                var that = this;
 
                 db.collection("players").get().then(function (querySnapshot) {
+                    let players = {};
                     querySnapshot.forEach(function (doc) {
                         // doc.data() is never undefined for query doc snapshots
                         // console.log(doc.data());
                         players[doc.data().name] = {name: doc.data().name, elo: doc.data().elo};
                     });
+
+                    that.players = players;
+
                 });
-                this.players = players;
                 console.log('player data loaded');
             },
             // Implementing ELO score
@@ -278,7 +271,6 @@
     });
 
     app.getPlayers();
-    app.populateLeaderBoard();
 </script>
 
 </body>

@@ -2,3 +2,7 @@
     padding-bottom: 5px;
     padding-top: 5px;
 }
+
+.flip-list-move {
+    transition: transform 1s;
+}
