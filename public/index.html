@@ -11,6 +11,9 @@
 
     <link rel="stylesheet" href="style.css">
 
+    <link rel="icon"
+          href="pong.ico">
+
     <title>Pong Ping</title>
 </head>
 <body>
@@ -18,9 +21,10 @@
 <div id="pong_ping" class="container">
 
     <div class="row">
+
         <nav class="navbar navbar-light bg-light justify-content-between">
             <a class="navbar-brand">Operation Pong Ping</a>
-            <button class="btn btn-outline-success my-2 my-sm-0">Log in</button>
+            <img src="james.jpg" width="100" alt="James Andrews profile pic">
         </nav>
     </div>
 
@@ -104,7 +108,7 @@
     <div class="row">
         <div class="col-md-6">
             <transition-group name="flip-list" tag="ul">
-                <div v-for="(player,index) in sortedPlayers" v-bind:key="player" class="card col-xs-12">
+                <div v-for="(player,index) in sortedPlayers" v-bind:key="player.name" class="card col-xs-12">
                     <div class="card-body">
                         {{ index + 1 }}. {{ player.name }} {{ Math.round(player.elo) }}
                     </div>
@@ -181,6 +185,8 @@
         methods: {
             addGame: function (newGame) {
 
+                this.saveGame(newGame);
+
                 const newElos = this.computeNewELOs(
                     newGame.player1.elo,
                     newGame.player1Score,
@@ -198,6 +204,38 @@
                 newGame.player2 = null;
                 newGame.player1Score = 0;
                 newGame.player2Score = 0;
+            },
+            saveGame: function (game) {
+                console.log('attempting to save game');
+                if (game.player1 == null || game.player2 == null) {
+                    console.log(game.player1);
+                    console.log(game.player2);
+
+                    return game
+                }
+
+                // Add a new game in collection "games"
+                let docRef = db.collection("games").add({
+                    player1: game.player1.name,
+                    player1Score: game.player1Score,
+                    player2: game.player2.name,
+                    player2Score: game.player2Score,
+                })
+                    .then(function (docRef) {
+                        console.log("Game added");
+
+                        // Update the timestamp field with the value from the server
+                        let updateTimestamp = docRef.update({
+                            timeStamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+
+                    })
+                    .catch(function (error) {
+                        console.error("Error writing game to firestore: ", error);
+                    });
+
+
+
             },
             getPlayers: function () {
                 console.log('loading player data from the database');
@@ -229,12 +267,12 @@
                 console.log(expected_2);
 
                 // normalise inputted scores
-                const maxScore = Math.max(player1Score, player2Score);
+                const totalScore = Number(player1Score) + Number(player2Score);
 
-                console.log('max score:', maxScore);
+                console.log('total score:', totalScore);
 
-                const actual_1 = player1Score / maxScore;
-                const actual_2 = player2Score / maxScore;
+                const actual_1 = player1Score / totalScore;
+                const actual_2 = player2Score / totalScore;
 
                 console.log('actual scores:');
                 console.log(actual_1);
@@ -246,7 +284,7 @@
                 return {player1Elo: player1EloUpdated, player2Elo: player2EloUpdated}
             },
             updateELO: function (playerName, newELO) {
-                // Add a new document in collection "cities"
+                // Update Player ELO score
                 db.collection("players").doc(playerName).set({
                     name: playerName,
                     elo: newELO
