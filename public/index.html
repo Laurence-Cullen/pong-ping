@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="style.css">
 
     <link rel="icon"
-          href="pong.ico">
+          href="images/pong.ico">
 
     <title>Pong Ping</title>
 </head>
@@ -20,13 +20,10 @@
 
 <div id="pong_ping" class="container">
 
-    <div class="row">
-
         <nav class="navbar navbar-light bg-light justify-content-between">
-            <a class="navbar-brand">Operation Pong Ping</a>
-            <img src="james.jpg" width="100" alt="James Andrews profile pic">
+            <a class="navbar-brand"><h1>Operation Pong Ping</h1></a>
+            <img src="images/james.jpg" width="100" alt="James Andrews profile pic">
         </nav>
-    </div>
 
     <div class="row">
         <!-- Button trigger modal -->
@@ -107,14 +104,30 @@
 
     <div class="row">
         <div class="col-md-6">
+            <h2>Leaderboard</h2>
             <transition-group name="flip-list" tag="ul">
-                <div v-for="(player,index) in sortedPlayers" v-bind:key="player.name" class="card col-xs-12">
+                <div v-for="(player, index) in sortedPlayers" v-bind:key="player.name" class="card col-xs-12">
                     <div class="card-body">
                         {{ index + 1 }}. {{ player.name }} {{ Math.round(player.elo) }}
                     </div>
                 </div>
             </transition-group>
         </div>
+        <div class="col-md-6">
+            <h2>Game Feed</h2>
+            <div v-for="game in games" class="card col-xs-12">
+                <div v-if="Number(game.player1Score) > Number(game.player2Score)" class="card-body">
+                    {{ game.player1 }} smoked {{ game.player2 }}: {{ game.player1Score }}-{{ game.player2Score }}
+                </div>
+                <div v-else-if="Number(game.player2Score) > Number(game.player1Score)" class="card-body">
+                    {{ game.player2 }} smoked {{ game.player1 }}: {{ game.player2Score }}-{{ game.player1Score }}
+                </div>
+                <div v-else class="card-body">
+                    Players drew, broken input.
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -169,7 +182,8 @@
             },
             predicate: 'elo',
             players: {},
-            K: 32,
+            games: [],
+            K: 32, // controls how fast ELOs change, in chess either 32 for noobs or 16 for masters
             leaderBoardString: ''
         },
         computed: {
@@ -184,11 +198,15 @@
         },
         methods: {
             addGame: function (newGame) {
-
                 if (newGame.player1Score < 11 && newGame.player2Score < 11) {
-                    console.log('game must be scored to at least 11 points to count');
-                    alert('game must be to a minimum of 11 points');
+                    alert('Game must be to a minimum of 11 points 🔴');
                     return newGame;
+                } else if (newGame.player1.name === newGame.player2.name) {
+                    alert('You just played yourself 👎');
+                    return newGame;
+                } else if (newGame.player1Score === newGame.player2Score) {
+                    alert('No draws allowed!‍ 🔴\nPlay until a winner is decided.');
+                    return newGame
                 }
 
                 this.saveGame(newGame);
@@ -263,10 +281,31 @@
                 });
                 console.log('player data loaded');
             },
+
+            getGames: function() {
+                console.log('loading game data from the database');
+
+                let that = this;
+
+                db.collection("games").get().then(function (querySnapshot) {
+                    let games = [];
+                    querySnapshot.forEach(function (doc) {
+                        games.push({
+                            player1: doc.data().player1,
+                            player1Score: doc.data().player1Score,
+                            player2: doc.data().player2,
+                            player2Score: doc.data().player2Score,
+                            timeStamp: doc.data().timeStamp
+                        });
+                    });
+                    that.games = games;
+                });
+                console.log('player data loaded');
+            },
+
             // Implementing ELO score
             // https://en.wikipedia.org/wiki/Elo_rating_system
             computeNewELOs: function (player1Elo, player1Score, player2Elo, player2Score) {
-                // in chess either 32 for noobs or 16 for masters
 
                 console.log('player1 elo:', player1Elo);
                 console.log('player2 elo:', player2Elo);
@@ -315,6 +354,7 @@
     });
 
     app.getPlayers();
+    app.getGames();
 </script>
 
 </body>
