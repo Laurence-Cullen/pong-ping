@@ -104,7 +104,6 @@
     <div class="row">
         <div class="col-md-6">
             <transition-group name="flip-list" tag="ul">
-
                 <div v-for="(player,index) in sortedPlayers" v-bind:key="player" class="card col-xs-12">
                     <div class="card-body">
                         {{ index + 1 }}. {{ player.name }} {{ Math.round(player.elo) }}
@@ -199,23 +198,18 @@
                 newGame.player2 = null;
                 newGame.player1Score = 0;
                 newGame.player2Score = 0;
-
             },
             getPlayers: function () {
                 console.log('loading player data from the database');
 
-                var that = this;
+                let that = this;
 
                 db.collection("players").get().then(function (querySnapshot) {
                     let players = {};
                     querySnapshot.forEach(function (doc) {
-                        // doc.data() is never undefined for query doc snapshots
-                        // console.log(doc.data());
                         players[doc.data().name] = {name: doc.data().name, elo: doc.data().elo};
                     });
-
                     that.players = players;
-
                 });
                 console.log('player data loaded');
             },
