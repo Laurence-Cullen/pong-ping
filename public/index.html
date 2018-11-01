@@ -20,16 +20,19 @@
 
 <div id="pong_ping" class="container">
 
-        <nav class="navbar navbar-light bg-light justify-content-between">
-            <a class="navbar-brand"><h1>Operation Pong Ping</h1></a>
-            <img src="images/james.jpg" width="100" alt="James Andrews profile pic">
-        </nav>
+    <nav class="navbar navbar-light bg-light justify-content-between">
+        <a class="navbar-brand"><h1>Operation Pong Ping</h1></a>
+        <img src="https://media.giphy.com/media/MHKl0gVYw0RTq/giphy.gif" width="400" alt="Forrest Gump Ping Pong">
+    </nav>
 
     <div class="row">
         <!-- Button trigger modal -->
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-            Add game result!
-        </button>
+        <div class="col-md-12 text-center">
+            <button id="add_game" type="button" class="btn btn-primary btn-lg" data-toggle="modal"
+                    data-target="#exampleModal">
+                Add game result!
+            </button>
+        </div>
 
         <!-- Modal -->
         <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -103,19 +106,24 @@
     </div>
 
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-6 text-center">
             <h2>Leaderboard</h2>
             <transition-group name="flip-list" tag="ul">
-                <div v-for="(player, index) in sortedPlayers" v-bind:key="player.name" class="card col-xs-12">
+                <div v-for="(player, index) in sortedPlayers" v-bind:key="player.name"
+                     class="card leaderboard col-xs-12" v-bind:id="index + 1">
                     <div class="card-body">
                         {{ index + 1 }}. {{ player.name }} {{ Math.round(player.elo) }}
+                        <span v-if="index === 0">🥇</span>
+                        <span v-if="index === 1">🥈</span>
+                        <span v-if="index === 2">🥉</span>
+                        <span v-if="index === 17">💩</span>
                     </div>
                 </div>
             </transition-group>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6 text-center">
             <h2>Game Feed</h2>
-            <div v-for="game in games" class="card col-xs-12">
+            <div v-for="game in sortedGames" class="card col-xs-12">
                 <div v-if="Number(game.player1Score) > Number(game.player2Score)" class="card-body">
                     {{ game.player1 }} smoked {{ game.player2 }}: {{ game.player1Score }}-{{ game.player2Score }}
                 </div>
@@ -124,6 +132,9 @@
                 </div>
                 <div v-else class="card-body">
                     Players drew, broken input.
+                </div>
+                <div class="card-footer text-muted">
+                    {{ timeSince(game.timeStamp) }} ago
                 </div>
             </div>
         </div>
@@ -194,9 +205,41 @@
                     return b[that.predicate] - a[that.predicate];
                 });
                 return playersArray;
+            },
+            sortedGames: function () {
+                let games = this.games;
+                return games.sort(function (a, b) {
+                    return b.timeStamp.seconds - a.timeStamp.seconds;
+                })
             }
         },
         methods: {
+            timeSince: function (timeStamp) {
+                const seconds = firebase.firestore.Timestamp.now().seconds - timeStamp.seconds;
+
+                let interval = Math.floor(seconds / 31536000);
+
+                if (interval > 1) {
+                    return interval + " years";
+                }
+                interval = Math.floor(seconds / 2592000);
+                if (interval > 1) {
+                    return interval + " months";
+                }
+                interval = Math.floor(seconds / 86400);
+                if (interval > 1) {
+                    return interval + " days";
+                }
+                interval = Math.floor(seconds / 3600);
+                if (interval > 1) {
+                    return interval + " hours";
+                }
+                interval = Math.floor(seconds / 60);
+                if (interval > 1) {
+                    return interval + " minutes";
+                }
+                return Math.floor(seconds) + " seconds";
+            },
             addGame: function (newGame) {
                 if (newGame.player1Score < 11 && newGame.player2Score < 11) {
                     alert('Game must be to a minimum of 11 points 🔴');
@@ -265,7 +308,6 @@
                     });
 
 
-
             },
             getPlayers: function () {
                 console.log('loading player data from the database');
@@ -282,7 +324,7 @@
                 console.log('player data loaded');
             },
 
-            getGames: function() {
+            getGames: function () {
                 console.log('loading game data from the database');
 
                 let that = this;
@@ -352,9 +394,12 @@
             }
         }
     });
-
     app.getPlayers();
     app.getGames();
+
+    // every 10 seconds pull down latest player and game data
+    setInterval(app.getPlayers, 10000);
+    setInterval(app.getGames, 10000);
 </script>
 
 </body>
