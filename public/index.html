@@ -267,6 +267,8 @@
                 this.updateELO(newGame.player1.name, newElos.player1Elo);
                 this.updateELO(newGame.player2.name, newElos.player2Elo);
 
+                this.getGames();
+
                 newGame.player1 = null;
                 newGame.player2 = null;
                 newGame.player1Score = 0;
@@ -275,6 +277,7 @@
             saveGame: function (game) {
                 console.log('attempting to save game');
                 if (game.player1 == null || game.player2 == null) {
+                    console.log('found a null player in game');
                     console.log(game.player1);
                     console.log(game.player2);
 
@@ -301,13 +304,10 @@
                         let updateTimestamp = docRef.update({
                             timeStamp: firebase.firestore.FieldValue.serverTimestamp()
                         });
-
                     })
                     .catch(function (error) {
                         console.error("Error writing game to firestore: ", error);
                     });
-
-
             },
             getPlayers: function () {
                 console.log('loading player data from the database');
@@ -397,9 +397,9 @@
     app.getPlayers();
     app.getGames();
 
-    // every 10 seconds pull down latest player and game data
-    setInterval(app.getPlayers, 10000);
+    // every 10 seconds pull down game data
     setInterval(app.getGames, 10000);
+    setInterval(app.$forceUpdate, 10000);
 </script>
 
 </body>
