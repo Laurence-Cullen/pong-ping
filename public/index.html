@@ -401,10 +401,10 @@
     app.getGames();
 
     // every 10 seconds pull down game data
-    setInterval(app.getGames, 10000);
+    setInterval(app.getGames, 30000);
 
     // TODO handle crashes in force update to fix current game feed loading problem
-    setInterval(app.$forceUpdate, 10000);
+    setInterval(app.$forceUpdate, 30000);
 </script>
 
 </body>
