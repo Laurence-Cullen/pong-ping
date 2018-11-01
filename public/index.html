@@ -122,7 +122,10 @@
             </transition-group>
         </div>
         <div class="col-md-6 text-center">
-            <h2>Game Feed</h2>
+            <button type="button" class="btn btn-outline-secondary btn-lg" v-on:click="getGames">
+                Game Feed <img src="images/refresh.png" alt="refresh symbol" width="24">
+            </button>
+
             <div v-for="game in sortedGames" class="card col-xs-12">
                 <div v-if="Number(game.player1Score) > Number(game.player2Score)" class="card-body">
                     {{ game.player1 }} smoked {{ game.player2 }}: {{ game.player1Score }}-{{ game.player2Score }}
@@ -208,6 +211,7 @@
             },
             sortedGames: function () {
                 let games = this.games;
+
                 return games.sort(function (a, b) {
                     console.log('a = ', a);
                     console.log('b = ', b);
@@ -400,11 +404,6 @@
     app.getPlayers();
     app.getGames();
 
-    // every 10 seconds pull down game data
-    setInterval(app.getGames, 30000);
-
-    // TODO handle crashes in force update to fix current game feed loading problem
-    setInterval(app.$forceUpdate, 30000);
 </script>
 
 </body>
