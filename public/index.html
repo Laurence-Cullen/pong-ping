@@ -209,8 +209,10 @@
             sortedGames: function () {
                 let games = this.games;
                 return games.sort(function (a, b) {
+                    console.log('a = ', a);
+                    console.log('b = ', b);
                     return b.timeStamp.seconds - a.timeStamp.seconds;
-                })
+                });
             }
         },
         methods: {
@@ -308,6 +310,7 @@
                     .catch(function (error) {
                         console.error("Error writing game to firestore: ", error);
                     });
+                docRef
             },
             getPlayers: function () {
                 console.log('loading player data from the database');
@@ -342,7 +345,7 @@
                     });
                     that.games = games;
                 });
-                console.log('player data loaded');
+                console.log('game data loaded');
             },
 
             // Implementing ELO score
@@ -399,6 +402,8 @@
 
     // every 10 seconds pull down game data
     setInterval(app.getGames, 10000);
+
+    // TODO handle crashes in force update to fix current game feed loading problem
     setInterval(app.$forceUpdate, 10000);
 </script>
 
