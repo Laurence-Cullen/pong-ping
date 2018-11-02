@@ -125,6 +125,9 @@
             <button type="button" class="btn btn-outline-secondary btn-lg" v-on:click="getGames">
                 Game Feed <img src="images/refresh.png" alt="refresh symbol" width="24">
             </button>
+            <h2>
+               {{ games.length }} games played so far
+            </h2>
 
             <div v-for="game in sortedGames" class="card col-xs-12">
                 <div class="card-body">
