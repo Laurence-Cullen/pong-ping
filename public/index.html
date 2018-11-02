@@ -127,14 +127,8 @@
             </button>
 
             <div v-for="game in sortedGames" class="card col-xs-12">
-                <div v-if="Number(game.player1Score) > Number(game.player2Score)" class="card-body">
-                    {{ game.player1 }} smoked {{ game.player2 }}: {{ game.player1Score }}-{{ game.player2Score }}
-                </div>
-                <div v-else-if="Number(game.player2Score) > Number(game.player1Score)" class="card-body">
-                    {{ game.player2 }} smoked {{ game.player1 }}: {{ game.player2Score }}-{{ game.player1Score }}
-                </div>
-                <div v-else class="card-body">
-                    Players drew, broken input.
+                <div class="card-body">
+                    {{ game.winner }} {{ game.victoryWord }} {{ game.loser }}: {{ game.winnerScore }}-{{ game.loserScore }}
                 </div>
                 <div class="card-footer text-muted">
                     {{ timeSince(game.timeStamp) }} ago
@@ -198,7 +192,15 @@
             players: {},
             games: [],
             K: 32, // controls how fast ELOs change, in chess either 32 for noobs or 16 for masters
-            leaderBoardString: ''
+            victoryWords: {
+                marginal: ['edged out', 'overcame', 'subdued'],
+                low: ['beat', 'defeated', 'overpowered', 'subjugated'],
+                medium: ['smoked', 'caned', 'beat down'],
+                high: ['smashed', 'clobbered', 'thrashed', 'vanquished'],
+                extreme: ['demolished', 'crushed', 'obliterated'],
+                absolute: ['atomised', 'annihilated', 'massacred'],
+                overkill: ['decimated'],
+            }
         },
         computed: {
             sortedPlayers: function () {
@@ -212,14 +214,81 @@
             sortedGames: function () {
                 let games = this.games;
 
-                return games.sort(function (a, b) {
-                    console.log('a = ', a);
-                    console.log('b = ', b);
+                let gamesToSort = [];
+
+                for (const i in games) {
+                    const game = games[i];
+
+                    let winner = null;
+                    let loser = null;
+
+                    let winnerScore = null;
+                    let loserScore = null;
+
+                    if (Number(game.player1Score) > Number(game.player2Score)) {
+                        winner = game.player1;
+                        loser = game.player2;
+                        winnerScore = game.player1Score;
+                        loserScore = game.player2Score;
+
+                    } else if (Number(game.player2Score) > Number(game.player1Score)) {
+                        winner = game.player2;
+                        loser = game.player1;
+                        winnerScore = game.player2Score;
+                        loserScore = game.player1Score;
+
+                    } else {
+                        console.log('players drew, not legal');
+                        return
+                    }
+
+                    let scoreDelta = winnerScore - loserScore;
+
+                    let victorySeverity = null;
+                    if (scoreDelta <= 2) {
+                        victorySeverity = 'marginal';
+                    } else if (scoreDelta <= 4) {
+                        victorySeverity = 'low';
+                    } else if (scoreDelta <= 6) {
+                        victorySeverity = 'medium';
+                    } else if (scoreDelta <= 8) {
+                        victorySeverity = 'high';
+                    } else if (scoreDelta <= 10) {
+                        victorySeverity = 'extreme';
+                    } else if (scoreDelta === 11) {
+                        victorySeverity = 'absolute';
+                    } else if (scoreDelta > 11) {
+                        victorySeverity = 'overkill'
+                    } else {
+                        console.log('encountered error when computing victory severity');
+                        return
+                    }
+
+                    const numberOfWords = this.victoryWords[victorySeverity].length;
+                    const victoryWord = this.victoryWords[victorySeverity][this.randomInt(0, numberOfWords)];
+
+                    gamesToSort.push({
+                        winner: winner,
+                        loser: loser,
+                        winnerScore: winnerScore,
+                        loserScore: loserScore,
+                        victoryWord: victoryWord,
+                        timeStamp: game.timeStamp
+                    })
+                }
+
+                return gamesToSort.sort(function (a, b) {
                     return b.timeStamp.seconds - a.timeStamp.seconds;
                 });
             }
         },
         methods: {
+            randomInt: function (min, max) {
+                //The maximum is exclusive and the minimum is inclusive
+                min = Math.ceil(min);
+                max = Math.floor(max);
+                return Math.floor(Math.random() * (max - min)) + min;
+            },
             timeSince: function (timeStamp) {
                 const seconds = firebase.firestore.Timestamp.now().seconds - timeStamp.seconds;
 
@@ -314,7 +383,6 @@
                     .catch(function (error) {
                         console.error("Error writing game to firestore: ", error);
                     });
-                docRef
             },
             getPlayers: function () {
                 console.log('loading player data from the database');
