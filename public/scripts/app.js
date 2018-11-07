@@ -6,7 +6,6 @@ let app = new Vue({
             player1Score: 0,
             player2: null,
             player2Score: 0,
-
         },
         predicate: 'elo',
         players: {},
@@ -33,24 +32,7 @@ let app = new Vue({
             return playersArray;
         },
         sortedGames: function () {
-            let games = this.games;
-
-            let gamesToSort = [];
-
-            for (const i in games) {
-                const game = games[i];
-
-                gamesToSort.push({
-                    winner: winner,
-                    loser: loser,
-                    winnerScore: winnerScore,
-                    loserScore: loserScore,
-                    victoryWord: victoryWord,
-                    timeStamp: game.timeStamp
-                })
-            }
-
-            return gamesToSort.sort(function (a, b) {
+            return this.games.sort(function (a, b) {
                 return b.timeStamp.seconds - a.timeStamp.seconds;
             });
         }
@@ -231,12 +213,18 @@ let app = new Vue({
             db.collection("games").get().then(function (querySnapshot) {
                 let games = [];
                 querySnapshot.forEach(function (doc) {
+
+                    const data = doc.data();
+
                     games.push({
-                        player1: doc.data().player1,
-                        player1Score: doc.data().player1Score,
-                        player2: doc.data().player2,
-                        player2Score: doc.data().player2Score,
-                        timeStamp: doc.data().timeStamp
+                        winner: data.winner,
+                        loser: data.loser,
+                        winnerScore: data.winnerScore,
+                        loserScore: data.loserScore,
+                        winnerEloChange: data.winnerEloChange,
+                        loserEloChange: data.loserEloChange,
+                        victoryWord: data.victoryWord,
+                        timeStamp: data.timeStamp
                     });
                 });
                 that.games = games;
