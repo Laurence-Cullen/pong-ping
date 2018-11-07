@@ -6,6 +6,7 @@ let app = new Vue({
             player1Score: 0,
             player2: null,
             player2Score: 0,
+
         },
         predicate: 'elo',
         players: {},
@@ -28,6 +29,7 @@ let app = new Vue({
             playersArray.sort(function (a, b) {
                 return b[that.predicate] - a[that.predicate];
             });
+
             return playersArray;
         },
         sortedGames: function () {
@@ -37,54 +39,6 @@ let app = new Vue({
 
             for (const i in games) {
                 const game = games[i];
-
-                let winner = null;
-                let loser = null;
-
-                let winnerScore = null;
-                let loserScore = null;
-
-                if (Number(game.player1Score) > Number(game.player2Score)) {
-                    winner = game.player1;
-                    loser = game.player2;
-                    winnerScore = game.player1Score;
-                    loserScore = game.player2Score;
-
-                } else if (Number(game.player2Score) > Number(game.player1Score)) {
-                    winner = game.player2;
-                    loser = game.player1;
-                    winnerScore = game.player2Score;
-                    loserScore = game.player1Score;
-
-                } else {
-                    console.log('players drew, not legal');
-                    return
-                }
-
-                let scoreDelta = winnerScore - loserScore;
-
-                let victorySeverity = null;
-                if (scoreDelta <= 2) {
-                    victorySeverity = 'marginal';
-                } else if (scoreDelta <= 4) {
-                    victorySeverity = 'low';
-                } else if (scoreDelta <= 6) {
-                    victorySeverity = 'medium';
-                } else if (scoreDelta <= 8) {
-                    victorySeverity = 'high';
-                } else if (scoreDelta <= 10) {
-                    victorySeverity = 'extreme';
-                } else if (scoreDelta === 11) {
-                    victorySeverity = 'absolute';
-                } else if (scoreDelta > 11) {
-                    victorySeverity = 'overkill'
-                } else {
-                    console.log('encountered error when computing victory severity');
-                    return
-                }
-
-                const numberOfWords = this.victoryWords[victorySeverity].length;
-                const victoryWord = this.victoryWords[victorySeverity][this.randomInt(0, numberOfWords)];
 
                 gamesToSort.push({
                     winner: winner,
@@ -146,14 +100,18 @@ let app = new Vue({
                 return newGame
             }
 
-            this.saveGame(newGame);
-
             const newElos = this.computeNewELOs(
                 newGame.player1.elo,
                 newGame.player1Score,
                 newGame.player2.elo,
                 newGame.player2Score
             );
+
+            newGame.player1EloChange = newElos.player1Elo - newGame.player1.elo;
+            newGame.player2EloChange = newElos.player2Elo - newGame.player2.elo;
+
+            // saving new game to firebase
+            this.saveGame(newGame);
 
             newGame.player1.elo = newElos.player1Elo;
             newGame.player2.elo = newElos.player2Elo;
@@ -169,14 +127,58 @@ let app = new Vue({
             newGame.player2Score = 0;
         },
         saveGame: function (game) {
-            console.log('attempting to save game');
-            if (game.player1 == null || game.player2 == null) {
-                console.log('found a null player in game');
-                console.log(game.player1);
-                console.log(game.player2);
 
-                return game
+            let winner = null;
+            let loser = null;
+
+            let winnerScore = null;
+            let loserScore = null;
+
+            let winnerEloChange = null;
+            let loserEloChange = null;
+
+            if (Number(game.player1Score) > Number(game.player2Score)) {
+                winner = game.player1;
+                loser = game.player2;
+                winnerScore = game.player1Score;
+                loserScore = game.player2Score;
+                winnerEloChange = game.player1EloChange;
+                loserEloChange = game.player2EloChange;
+
+            } else if (Number(game.player2Score) > Number(game.player1Score)) {
+                winner = game.player2;
+                loser = game.player1;
+                winnerScore = game.player2Score;
+                loserScore = game.player1Score;
+            } else {
+                console.log('players drew, not legal');
+                return
             }
+
+            let scoreDelta = winnerScore - loserScore;
+
+            let victorySeverity = null;
+            if (scoreDelta <= 2) {
+                victorySeverity = 'marginal';
+            } else if (scoreDelta <= 4) {
+                victorySeverity = 'low';
+            } else if (scoreDelta <= 6) {
+                victorySeverity = 'medium';
+            } else if (scoreDelta <= 8) {
+                victorySeverity = 'high';
+            } else if (scoreDelta <= 10) {
+                victorySeverity = 'extreme';
+            } else if (scoreDelta === 11) {
+                victorySeverity = 'absolute';
+            } else if (scoreDelta > 11) {
+                victorySeverity = 'overkill'
+            } else {
+                console.log('encountered error when computing victory severity');
+                return
+            }
+
+            const numberOfWords = this.victoryWords[victorySeverity].length;
+            const victoryWord = this.victoryWords[victorySeverity][this.randomInt(0, numberOfWords)];
 
             if (game.player1Score < 11 && game.player2Score < 11) {
                 console.log('game must be scored to at least 11 points to count');
@@ -186,10 +188,13 @@ let app = new Vue({
 
             // Add a new game in collection "games"
             let docRef = db.collection("games").add({
-                player1: game.player1.name,
-                player1Score: game.player1Score,
-                player2: game.player2.name,
-                player2Score: game.player2Score,
+                winner: winner,
+                loser: loser,
+                winnerScore: winnerScore,
+                loserScore: loserScore,
+                winnerEloChange: winnerEloChange,
+                loserEloChange: loserEloChange,
+                victoryWord: victoryWord,
             })
                 .then(function (docRef) {
                     console.log("Game added");

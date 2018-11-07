@@ -116,8 +116,11 @@
                         <span v-if="index === 0">🥇</span>
                         <span v-if="index === 1">🥈</span>
                         <span v-if="index === 2">🥉</span>
-                        <span v-if="index === Math.ceil(sortedPlayers.length / 2)">⚖️</span>
+                        <span v-if="index === Math.ceil((sortedPlayers.length - 1) / 2)">⚖️</span>
                         <span v-if="index === sortedPlayers.length - 1">💩</span>
+
+
+
                     </div>
                 </div>
             </transition-group>
