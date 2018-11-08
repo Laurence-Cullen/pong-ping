@@ -25,6 +25,35 @@ let app = new Vue({
         sortedPlayers: function () {
             let playersArray = Object.values(this.players);
             let that = this;
+
+            for (const p_index in playersArray) {
+                let player = playersArray[p_index];
+                player.gamesWon = 0;
+                player.gamesLost = 0;
+
+                player.pointsWon = 0;
+                player.pointsLost = 0;
+
+                for (const g_index in app.games) {
+                    if (app.games[g_index].winner.name === player.name) {
+                        player.gamesWon ++;
+                        player.pointsWon += Number(app.games[g_index].winnerScore);
+                        player.pointsLost += Number(app.games[g_index].loserScore);
+                    } else if (app.games[g_index].loser.name === player.name) {
+                        player.gamesLost ++;
+                        player.pointsLost += Number(app.games[g_index].winnerScore);
+                        player.pointsWon += Number(app.games[g_index].loserScore);
+                    }
+                }
+                if (player.pointsLost > 0) {
+                    player.pointsRatio = Number(player.pointsWon) / Number(player.pointsLost);
+                } else {
+                    player.pointsRatio = 'N/A'
+                }
+
+                playersArray[p_index] = player;
+            }
+
             playersArray.sort(function (a, b) {
                 return b[that.predicate] - a[that.predicate];
             });
@@ -164,7 +193,6 @@ let app = new Vue({
 
             if (game.player1Score < 11 && game.player2Score < 11) {
                 console.log('game must be scored to at least 11 points to count');
-
                 return game
             }
 

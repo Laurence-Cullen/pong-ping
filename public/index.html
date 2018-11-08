@@ -118,6 +118,8 @@
                         <span v-if="index === 2">🥉</span>
                         <span v-if="index === Math.ceil((sortedPlayers.length - 1) / 2)">⚖️</span>
                         <span v-if="index === sortedPlayers.length - 1">💩</span>
+                        won: {{ player.gamesWon }} lost: {{ player.gamesLost }}
+                        scored: {{ player.pointsWon }} ratio: {{ Number(player.pointsRatio).toFixed(2) }}
                     </div>
                 </div>
             </transition-group>
@@ -132,7 +134,7 @@
 
             <div v-for="game in sortedGames" class="card col-xs-12">
                 <div class="card-body">
-                    {{ game.winner }} {{ game.victoryWord }} {{ game.loser }}: {{ game.winnerScore }}-{{ game.loserScore }}
+                    {{ game.winner.name }} {{ game.victoryWord }} {{ game.loser.name }}: {{ game.winnerScore }}-{{ game.loserScore }}
                 </div>
                 <div class="card-footer text-muted">
                     {{ timeSince(game.timeStamp) }} ago
