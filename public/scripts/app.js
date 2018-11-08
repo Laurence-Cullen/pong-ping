@@ -175,12 +175,13 @@ let app = new Vue({
                 loserScore = game.player2Score;
                 winnerEloChange = game.player1EloChange;
                 loserEloChange = game.player2EloChange;
-
             } else if (Number(game.player2Score) > Number(game.player1Score)) {
                 winner = game.player2;
                 loser = game.player1;
                 winnerScore = game.player2Score;
                 loserScore = game.player1Score;
+                winnerEloChange = game.player2EloChange;
+                loserEloChange = game.player1EloChange;
             } else {
                 console.log('players drew, not legal');
                 return
