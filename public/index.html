@@ -135,6 +135,7 @@
             <div v-for="game in sortedGames" class="card col-xs-12">
                 <div class="card-body">
                     {{ game.winner.name }} {{ game.victoryWord }} {{ game.loser.name }}: {{ game.winnerScore }}-{{ game.loserScore }}
+                    {{ game.eloChangeString }}
                 </div>
                 <div class="card-footer text-muted">
                     {{ timeSince(game.timeStamp) }} ago

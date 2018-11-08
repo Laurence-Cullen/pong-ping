@@ -61,6 +61,26 @@ let app = new Vue({
             return playersArray;
         },
         sortedGames: function () {
+            let games = this.games;
+            for (const index in games) {
+                let game = games[index];
+
+                if (typeof game.winnerEloChange === "undefined") {
+                    continue;
+                }
+
+                game.eloChangeString = '';
+
+                if (game.winnerEloChange > 0) {
+                    game.eloChangeString = 'and gained ' + Number(game.winnerEloChange).toFixed(2) + ' elo';
+                } else {
+                    game.eloChangeString = 'but lost ' + Number(game.loserEloChange).toFixed(2) + ' elo';
+                }
+                games[index] = game;
+            }
+
+            this.games = games;
+
             return this.games.sort(function (a, b) {
                 return b.timeStamp.seconds - a.timeStamp.seconds;
             });
