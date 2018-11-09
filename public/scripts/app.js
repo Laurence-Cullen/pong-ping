@@ -22,6 +22,12 @@ let app = new Vue({
         }
     },
     computed: {
+        firebase: function () {
+            return firebase
+        },
+        currentUser: function () {
+            return firebase.auth().currentUser
+        },
         sortedPlayers: function () {
             let playersArray = Object.values(this.players);
             let that = this;
@@ -36,11 +42,11 @@ let app = new Vue({
 
                 for (const g_index in app.games) {
                     if (app.games[g_index].winner.name === player.name) {
-                        player.gamesWon ++;
+                        player.gamesWon++;
                         player.pointsWon += Number(app.games[g_index].winnerScore);
                         player.pointsLost += Number(app.games[g_index].loserScore);
                     } else if (app.games[g_index].loser.name === player.name) {
-                        player.gamesLost ++;
+                        player.gamesLost++;
                         player.pointsLost += Number(app.games[g_index].winnerScore);
                         player.pointsWon += Number(app.games[g_index].loserScore);
                     }
@@ -87,6 +93,11 @@ let app = new Vue({
         }
     },
     methods: {
+        signOut: function () {
+            let promise = firebase.auth().signOut().then(function () {
+                location.reload();
+            });
+        },
         randomInt: function (min, max) {
             //The maximum is exclusive and the minimum is inclusive
             min = Math.ceil(min);
@@ -327,6 +338,9 @@ let app = new Vue({
         },
         computeExpectedScore: function (player_elo, other_elo) {
             return 1 / (1 + Math.pow(10, (other_elo - player_elo) / 400));
-        }
+        },
+        // currentUser: function () {
+        //     return firebase.auth().currentUser
+        // }
     }
 });

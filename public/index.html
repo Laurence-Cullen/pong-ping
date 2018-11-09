@@ -25,9 +25,15 @@
         <img src="https://media.giphy.com/media/MHKl0gVYw0RTq/giphy.gif" width="400" alt="Forrest Gump Ping Pong">
     </nav>
 
-    <h1>Firebase Login</h1>
-    <div id="firebaseui-auth-container"></div>
-    <div id="loader">Loading...</div>
+    <div v-if="!currentUser">
+        <h1>Firebase Login</h1>
+        <div id="firebaseui-auth-container"></div>
+        <div id="loader">Loading...</div>
+    </div>
+    <div v-else>
+        <h1>Hi {{ currentUser().displayName }}!</h1>
+        <button v-on:click="signOut()" type="button" class="btn btn-danger">Sign Out</button>
+    </div>
 
     <div class="row">
         <!-- Button trigger modal -->
