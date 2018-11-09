@@ -83,7 +83,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text" id="basic-addon1">Player 1 Score </span>
                                     </div>
-                                    <input max="21" v-model="newGame.player1Score" type="number" min="0" class="form-control"
+                                    <input max="21" v-model="newGame.player1Score" type="number" min="0"
+                                           class="form-control"
                                            placeholder="Score" aria-label="Username" aria-describedby="basic-addon1">
                                 </div>
                             </div>
@@ -92,7 +93,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text" id="basic-addon2">Player 2 Score</span>
                                     </div>
-                                    <input max="21" v-model="newGame.player2Score" type="number" min="0" class="form-control"
+                                    <input max="21" v-model="newGame.player2Score" type="number" min="0"
+                                           class="form-control"
                                            placeholder="Score" aria-label="Username" aria-describedby="basic-addon1">
                                 </div>
                             </div>
@@ -110,35 +112,47 @@
     </div>
 
     <div class="row">
-        <div class="col-md-6 text-center">
+        <div class="col-lg-6 col-md-12 col-sm-12">
             <h2>Leaderboard</h2>
-            <transition-group name="flip-list" tag="ul">
-                <div v-for="(player, index) in sortedPlayers" v-bind:key="player.name"
-                     class="card leaderboard col-xs-12" v-bind:id="index + 1">
-                    <div class="card-body">
-                        {{ index + 1 }}. {{ player.name }} {{ Math.round(player.elo) }}
-                        <span v-if="index === 0">🥇</span>
-                        <span v-if="index === 1">🥈</span>
-                        <span v-if="index === 2">🥉</span>
-                        <span v-if="index === Math.ceil((sortedPlayers.length - 1) / 2)">⚖️</span>
-                        <span v-if="index === sortedPlayers.length - 1">💩</span>
-                        won: {{ player.gamesWon }} lost: {{ player.gamesLost }}
-                        scored: {{ player.pointsWon }} ratio: {{ Number(player.pointsRatio).toFixed(2) }}
-                    </div>
-                </div>
-            </transition-group>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Rank</th>
+                    <th scope="col">Player</th>
+                    <th scope="col">ELO</th>
+                    <th scope="col">Won</th>
+                    <th scope="col">Lost</th>
+                    <th scope="col">Scored</th>
+                    <th scope="col">Ratio</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(player, index) in sortedPlayers">
+                    <th scope="row">{{ index + 1 }}</th>
+                    <td>{{ player.name }}</td>
+                    <td>{{ Math.round(player.elo) }}</td>
+                    <td>{{ player.gamesWon }}</td>
+                    <td>{{ player.gamesLost }}</td>
+                    <td>{{ player.pointsWon }}</td>
+                    <td>{{ Number(player.pointsRatio).toFixed(2) }}</td>
+                </tr>
+                </tbody>
+            </table>
         </div>
+
+
         <div class="col-md-6 text-center">
             <button type="button" class="btn btn-outline-secondary btn-lg" v-on:click="getGames">
                 Game Feed <img src="images/refresh.png" alt="refresh symbol" width="24">
             </button>
             <h2>
-               {{ games.length }} games played so far
+                {{ games.length }} games played so far
             </h2>
 
             <div v-for="game in sortedGames" class="card col-xs-12">
                 <div class="card-body">
-                    {{ game.winner.name }} {{ game.victoryWord }} {{ game.loser.name }}: {{ game.winnerScore }}-{{ game.loserScore }}
+                    {{ game.winner.name }} {{ game.victoryWord }} {{ game.loser.name }}: {{ game.winnerScore }}-{{
+                    game.loserScore }}
                     {{ game.eloChangeString }}
                 </div>
                 <div class="card-footer text-muted">
@@ -167,7 +181,7 @@
 <script src="https://www.gstatic.com/firebasejs/5.5.5/firebase-auth.js"></script>
 
 <script src="https://cdn.firebase.com/libs/firebaseui/3.1.1/firebaseui.js"></script>
-<link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.1.1/firebaseui.css" />
+<link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.1.1/firebaseui.css"/>
 
 <!-- Add additional services that you want to use -->
 <script src="https://www.gstatic.com/firebasejs/5.5.5/firebase-firestore.js"></script>
