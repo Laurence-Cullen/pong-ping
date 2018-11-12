@@ -1,6 +1,7 @@
 let app = new Vue({
     el: '#pong_ping',
     data: {
+        currentUser: null,
         newGame: {
             player1: null,
             player1Score: 0,
@@ -24,9 +25,6 @@ let app = new Vue({
     computed: {
         firebase: function () {
             return firebase
-        },
-        currentUser: function () {
-            return firebase.auth().currentUser
         },
         sortedPlayers: function () {
             let playersArray = Object.values(this.players);
@@ -94,8 +92,9 @@ let app = new Vue({
     },
     methods: {
         signOut: function () {
-            let promise = firebase.auth().signOut().then(function () {
-                location.reload();
+            let that = this;
+            firebase.auth().signOut().then(function () {
+                that.currentUser = null;
             });
         },
         randomInt: function (min, max) {
@@ -339,8 +338,9 @@ let app = new Vue({
         computeExpectedScore: function (player_elo, other_elo) {
             return 1 / (1 + Math.pow(10, (other_elo - player_elo) / 400));
         },
-        // currentUser: function () {
-        //     return firebase.auth().currentUser
-        // }
+
+        setAuthUser: function () {
+            this.currentUser = firebase.auth().currentUser;
+        }
     }
 });

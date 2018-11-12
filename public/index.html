@@ -31,9 +31,10 @@
         <div id="loader">Loading...</div>
     </div>
     <div v-else>
-        <h1>Hi {{ currentUser().displayName }}!</h1>
+        <h1>Hi {{ currentUser.displayName }}!</h1>
         <button v-on:click="signOut()" type="button" class="btn btn-danger">Sign Out</button>
     </div>
+
 
     <div class="row">
         <!-- Button trigger modal -->
