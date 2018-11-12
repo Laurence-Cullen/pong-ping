@@ -1,3 +1,5 @@
+
+
 let app = new Vue({
     el: '#pong_ping',
     data: {
@@ -328,7 +330,7 @@ let app = new Vue({
         },
         updateELO: function (playerName, newELO) {
             // Update Player ELO score
-            db.collection("players").doc(playerName).set({
+            db.collection("players").doc(playerName).update({
                 name: playerName,
                 elo: newELO
             })
