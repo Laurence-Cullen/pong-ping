@@ -95,7 +95,10 @@ let app = new Vue({
             let that = this;
             firebase.auth().signOut().then(function () {
                 that.currentUser = null;
-                ui.reset();
+                ui.delete().then(function () {
+                    ui = new firebaseui.auth.AuthUI(firebase.auth());
+                    ui.start('#firebaseui-auth-container', uiConfig);
+                });
             });
         },
         randomInt: function (min, max) {
