@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stripe</title>
+</head>
+<body>
+<form action="https://us-central1-pong-ping1.cloudfunctions.net/charge500" method="POST">
+    <script
+            src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+            data-key="pk_test_6NIaEuY1gJOf8mlV5DHNI1Ic"
+            data-amount="500"
+            data-name="Laurence Cullen"
+            data-description="Add 5000 credit"
+            data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+            data-locale="auto"
+            data-currency="gbp">
+    </script>
+</form>
+</body>
+</html>
