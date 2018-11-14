@@ -48,3 +48,6 @@ var uiConfig = {
 
 // The start method will wait until the DOM is loaded.
 ui.start('#firebaseui-auth-container', uiConfig);
+
+const charge500URL = 'https://us-central1-pong-ping1.cloudfunctions.net/charge500';
+const homeURL = 'https://pong-ping1.firebaseapp.com/';

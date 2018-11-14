@@ -364,7 +364,7 @@ let app = new Vue({
             // this.$checkout.close()
             // is also available.
             this.$checkout.open({
-                name: 'Add 5000 credits',
+                name: 'Pong Ping',
                 currency: 'gbp',
                 amount: 500,
                 token: (token) => {
@@ -372,7 +372,16 @@ let app = new Vue({
                     // for payment or subscription handling,
                     // or do whatever you want with it
                     // I don't really care.
-                    console.log('payment finished with token:');
+                    $.post(charge500URL, {
+                        token: token.id,
+                        amount: 500
+                    }).then(function (response) {
+                        console.log('completed AJAX payment call with response:');
+                        console.log(response)
+                    }).catch(function (error) {
+                        console.log('encountered error:' + error);
+                    });
+                    // console.log('payment finished with token:');
                     console.log(token);
                 }
             });
