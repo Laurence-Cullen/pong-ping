@@ -46,16 +46,16 @@ exports.charge500 = functions.https.onRequest((request, response) => {
                     }
 
                     if (doc.data().credit) {
-                        doc.update({credit: request.body.amount + doc.data().credit})
+                        doc.ref.update({credit: request.body.amount + doc.data().credit})
                             .then(function () {
-                                return response.send('payment completed successfully, credit: ' + doc.data().credit);
+                                return response.send('payment completed successfully, credit: ' + doc.data().credit + request.body.amount);
                             }).catch(function (error) {
                                 return response.send('tried to add to existing user credit but failed: ' + error);
                         });
                     } else {
-                        doc.update({credit: request.body.amount})
+                        doc.ref.update({credit: request.body.amount})
                             .then(function () {
-                                return response.send('payment completed successfully, credit: ' + doc.data().credit);
+                                return response.send('payment completed successfully, credit: ' + request.body.amount);
                             }).catch(function (error) {
                                 return response.send('tried to create user credit field but failed: ' + error)
                         });
