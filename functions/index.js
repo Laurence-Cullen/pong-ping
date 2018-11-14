@@ -1,5 +1,11 @@
 const functions = require('firebase-functions');
 var stripe = require("stripe")("sk_test_x4FUCBx7GzOwM9j9RBtoH0lU");
+const admin = require('firebase-admin');
+
+admin.initializeApp(functions.config().firebase);
+
+var db = admin.firestore();
+
 
 // Charge user £5
 exports.charge500 = functions.https.onRequest((request, response) => {
@@ -23,11 +29,12 @@ exports.charge500 = functions.https.onRequest((request, response) => {
     const token = request.body.token; // Using Express
 
     const charge = stripe.charges.create({
-        amount: 500,
+        amount: request.body.amount,
         currency: 'gbp',
         description: 'Example charge',
         source: token,
     }).then(function () {
+
         return response.send('payment completed successfully');
     }).catch(function (error) {
         return response.send('encountered error: ' + error);
