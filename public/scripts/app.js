@@ -363,26 +363,29 @@ let app = new Vue({
         checkout: function() {
             // this.$checkout.close()
             // is also available.
+
+            let that = this;
+
             this.$checkout.open({
                 name: 'Pong Ping',
                 currency: 'gbp',
                 amount: 500,
                 token: (token) => {
-                    // Send the token to your server
-                    // for payment or subscription handling,
-                    // or do whatever you want with it
-                    // I don't really care.
+
+                    console.log('UID:');
+                    console.log(that.currentUser.uid);
+
                     $.post(charge500URL, {
                         token: token.id,
-                        amount: 500
+                        amount: 500,
+                        UID: that.currentUser.uid
                     }).then(function (response) {
                         console.log('completed AJAX payment call with response:');
                         console.log(response)
                     }).catch(function (error) {
                         console.log('encountered error:' + error);
                     });
-                    // console.log('payment finished with token:');
-                    console.log(token);
+                    console.log(token.id);
                 }
             });
         }
