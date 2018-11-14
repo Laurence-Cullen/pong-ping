@@ -1,2 +1,2 @@
 # pong-ping
-An ELO tracker for the Alacrity ping pong league
+An ELO tracker and betting market for the Alacrity ping pong league
