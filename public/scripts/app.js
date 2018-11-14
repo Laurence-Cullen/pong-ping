@@ -1,4 +1,16 @@
+// base/global options
+// these options can be overridden
+// by the options in the .open(options)
+// function.
+const options = {
+    key: 'pk_test_6NIaEuY1gJOf8mlV5DHNI1Ic',
+    image: 'https://pong-ping1.firebaseapp.com/images/bat.jpg',
+    locale: 'auto',
+    currency: 'gbp',
+    billingAddress: false,
+};
 
+Vue.use(VueStripeCheckout, options);
 
 let app = new Vue({
     el: '#pong_ping',
@@ -347,6 +359,23 @@ let app = new Vue({
 
         setAuthUser: function () {
             this.currentUser = firebase.auth().currentUser;
+        },
+        checkout: function() {
+            // this.$checkout.close()
+            // is also available.
+            this.$checkout.open({
+                name: 'Add 5000 credits',
+                currency: 'gbp',
+                amount: 500,
+                token: (token) => {
+                    // Send the token to your server
+                    // for payment or subscription handling,
+                    // or do whatever you want with it
+                    // I don't really care.
+                    console.log('payment finished with token:');
+                    console.log(token);
+                }
+            });
         }
     }
 });
