@@ -16,6 +16,7 @@ let app = new Vue({
     el: '#pong_ping',
     data: {
         currentUser: null,
+        currentPlayer: null,
         newGame: {
             player1: null,
             player1Score: 0,
@@ -186,7 +187,6 @@ let app = new Vue({
             newGame.player2Score = 0;
         },
         saveGame: function (game) {
-
             let winner = null;
             let loser = null;
 
@@ -360,7 +360,33 @@ let app = new Vue({
         setAuthUser: function () {
             this.currentUser = firebase.auth().currentUser;
         },
-        checkout: function() {
+        refreshCurrentPlayer: function() {
+            this.currentPlayer = this.getPlayerByUID(this.currentUser.uid);
+        },
+        getPlayerByUID: function (uid) {
+            db.collection("players").where("UID", "==", uid)
+                .get()
+                .then(function (querySnapshot) {
+                    if (querySnapshot.size > 1) {
+                        console.log('Error: more than one player found with UID: ' + uid);
+                        return
+                    }
+
+                    querySnapshot.forEach(function (doc) {
+                        const data = doc.data();
+                        return {
+                            credit: data.credit,
+                            elo: data.elo,
+                            name: data.name,
+                        }
+                    });
+                })
+                .catch(function (error) {
+                    console.log("Error getting documents: ", error);
+
+                });
+        },
+        checkout: function () {
             // this.$checkout.close()
             // is also available.
 
@@ -381,11 +407,15 @@ let app = new Vue({
                         UID: that.currentUser.uid
                     }).then(function (response) {
                         console.log('completed AJAX payment call with response:');
-                        console.log(response)
+                        console.log(response);
+
+                        that.currentPlayer = that.getPlayerByUID(that.currentUser.uid);
+                        app =  that;
+                        console.log('updated player', app.currentPlayer.name);
+
                     }).catch(function (error) {
                         console.log('encountered error:' + error);
                     });
-                    console.log(token.id);
                 }
             });
         }

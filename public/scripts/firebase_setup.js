@@ -28,6 +28,7 @@ var uiConfig = {
             // Return type determines whether we continue the redirect automatically
             // or whether we leave that to developer to handle.
             app.setAuthUser();
+            app.refreshCurrentPlayer();
             // return true;
         },
         uiShown: function() {
