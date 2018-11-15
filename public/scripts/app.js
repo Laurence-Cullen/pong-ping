@@ -361,19 +361,28 @@ let app = new Vue({
             this.currentUser = firebase.auth().currentUser;
         },
         refreshCurrentPlayer: function() {
-            this.currentPlayer = this.getPlayerByUID(this.currentUser.uid);
+            console.log('refreshing current player');
+            let player = this.getPlayerByUID(this.currentUser.uid).then(function (player) {
+                console.log('get player promise resolved to value:');
+                console.log(player);
+                app.currentPlayer = player;
+            });
         },
         getPlayerByUID: function (uid) {
-            db.collection("players").where("UID", "==", uid)
+            console.log('attempting to get data for player with UID:', uid);
+            let promise = db.collection("players").where("UID", "==", uid)
                 .get()
                 .then(function (querySnapshot) {
                     if (querySnapshot.size > 1) {
                         console.log('Error: more than one player found with UID: ' + uid);
-                        return
+                        return 'Error: more than one player found with UID: ' + uid
                     }
 
                     querySnapshot.forEach(function (doc) {
                         const data = doc.data();
+
+                        console.log('assigned player data');
+
                         return {
                             credit: data.credit,
                             elo: data.elo,
@@ -383,7 +392,7 @@ let app = new Vue({
                 })
                 .catch(function (error) {
                     console.log("Error getting documents: ", error);
-
+                    return error
                 });
         },
         checkout: function () {
