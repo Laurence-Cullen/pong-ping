@@ -1,2 +1,2 @@
 # pong-ping
-An ELO ladder for the Alacrity ping pong league
+An ELO ladder for the Alacrity ping pong league 
