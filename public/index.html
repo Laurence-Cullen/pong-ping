@@ -23,21 +23,6 @@
         <a class="navbar-brand"><h1>Operation Pong Ping</h1></a>
         <img src="https://media.giphy.com/media/MHKl0gVYw0RTq/giphy.gif" width="400" alt="Forrest Gump Ping Pong">
     </nav>
-
-    <div v-if="!currentUser">
-        <div id="firebaseui-auth-container"></div>
-        <div id="loader">Loading...</div>
-    </div>
-    <div v-else>
-        <h1>Hi {{ currentUser.displayName }}!</h1>
-
-        <button v-on:click="signOut()" type="button" class="btn btn-danger">Sign Out</button>
-
-        <div>
-            <button type="button" class="btn btn-warning" v-on:click="checkout">Add £5 to credit</button>
-        </div>
-    </div>
-
     <div class="row">
         <!-- Button trigger modal -->
         <div class="col-md-12 text-center">
@@ -196,7 +181,6 @@
 
 <!-- Add additional services that you want to use -->
 <script src="https://www.gstatic.com/firebasejs/5.5.5/firebase-firestore.js"></script>
-<script src="https://unpkg.com/vue-stripe-checkout/build/vue-stripe-checkout.js"></script>
 
 <script src="scripts/firebase_setup.js"></script>
 <script src="scripts/app.js"></script>

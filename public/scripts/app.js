@@ -1,17 +1,3 @@
-// base/global options
-// these options can be overridden
-// by the options in the .open(options)
-// function.
-const options = {
-    key: 'pk_test_6NIaEuY1gJOf8mlV5DHNI1Ic',
-    image: 'https://pong-ping1.firebaseapp.com/images/bat.jpg',
-    locale: 'auto',
-    currency: 'gbp',
-    billingAddress: false,
-};
-
-Vue.use(VueStripeCheckout, options);
-
 let app = new Vue({
     el: '#pong_ping',
     data: {
@@ -34,7 +20,7 @@ let app = new Vue({
             high: ['smashed', 'clobbered', 'thrashed', 'vanquished'],
             extreme: ['demolished', 'crushed', 'obliterated'],
             absolute: ['atomised', 'annihilated', 'massacred'],
-            overkill: ['decimated'],
+            overkill: ['decimated', 'm-m-m-monster killed'],
         }
     },
     computed: {
@@ -395,38 +381,5 @@ let app = new Vue({
                     return error
                 });
         },
-        checkout: function () {
-            // this.$checkout.close()
-            // is also available.
-
-            let that = this;
-
-            this.$checkout.open({
-                name: 'Pong Ping',
-                currency: 'gbp',
-                amount: 500,
-                token: (token) => {
-
-                    console.log('UID:');
-                    console.log(that.currentUser.uid);
-
-                    $.post(charge500URL, {
-                        token: token.id,
-                        amount: 500,
-                        UID: that.currentUser.uid
-                    }).then(function (response) {
-                        console.log('completed AJAX payment call with response:');
-                        console.log(response);
-
-                        that.currentPlayer = that.getPlayerByUID(that.currentUser.uid);
-                        app =  that;
-                        console.log('updated player', app.currentPlayer.name);
-
-                    }).catch(function (error) {
-                        console.log('encountered error:' + error);
-                    });
-                }
-            });
-        }
     }
 });
